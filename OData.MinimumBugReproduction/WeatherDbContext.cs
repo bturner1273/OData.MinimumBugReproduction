@@ -11,10 +11,5 @@ namespace OData.MinimumBugReproduction
         public DbSet<WeatherForecast> WeatherForecasts { get; set; }
 
         public WeatherDbContext(DbContextOptions options) : base(options) { }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-        }
     }
 }

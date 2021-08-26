@@ -29,7 +29,7 @@ namespace OData.MinimumBugReproduction
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<WeatherDbContext>(opt => opt.UseInMemoryDatabase("WeatherForecasts"));
-            services.AddMvc(opt => opt.EnableEndpointRouting = false).AddOData(opt => 
+            services.AddControllers().AddOData(opt =>
             {
                 opt.AddRouteComponents("odata", GetEdmModel());
                 opt.Expand().Select().Count().OrderBy().Filter().SetMaxTop(1000);
@@ -48,12 +48,7 @@ namespace OData.MinimumBugReproduction
 
             app.UseAuthorization();
 
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "Weather",
-                    template: "{controller=WeatherForecast}/{action=Index}/{id?}");
-            });
+            app.UseEndpoints(endpoints => endpoints.MapControllers());
         }
 
         private static IEdmModel GetEdmModel()

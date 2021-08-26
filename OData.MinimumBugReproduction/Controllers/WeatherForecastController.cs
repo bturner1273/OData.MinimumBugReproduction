@@ -1,16 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using Microsoft.AspNetCore.OData.Routing.Controllers;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using Microsoft.AspNet.OData;
+using Microsoft.AspNet.OData.Routing;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace OData.MinimumBugReproduction.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
+    [ODataRoutePrefix("WeatherForecasts")]
     public class WeatherForecastController : ODataController
     {
         private readonly WeatherDbContext _context;
@@ -20,8 +15,9 @@ namespace OData.MinimumBugReproduction.Controllers
             _context = context;
         }
 
-        [HttpGet]
+        [HttpGet("odata/weatherforecasts")]
         [EnableQuery]
         public IEnumerable<WeatherForecast> Get() =>  _context.WeatherForecasts;
+
     }
 }

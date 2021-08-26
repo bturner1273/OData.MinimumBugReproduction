@@ -1,18 +1,13 @@
+using Microsoft.AspNet.OData.Builder;
+using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OData.Edm;
-using Microsoft.OData.ModelBuilder;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace OData.MinimumBugReproduction
 {
@@ -29,11 +24,9 @@ namespace OData.MinimumBugReproduction
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<WeatherDbContext>(opt => opt.UseInMemoryDatabase("WeatherForecasts"));
-            services.AddControllers().AddOData(opt =>
-            {
-                opt.AddRouteComponents("odata", GetEdmModel());
-                opt.Expand().Select().Count().OrderBy().Filter().SetMaxTop(1000);
-            });
+            services.AddOData();
+            services.AddODataQueryFilter();
+            services.AddControllers(opt => opt.EnableEndpointRouting = false);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -48,13 +41,23 @@ namespace OData.MinimumBugReproduction
 
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => endpoints.MapControllers());
+            app.UseEndpoints(endpoints => 
+            {
+                endpoints.MapODataRoute("odata", "odata", GetEdmModel());
+            });
         }
 
         private static IEdmModel GetEdmModel()
         {
             var odataBuilder = new ODataConventionModelBuilder();
-            odataBuilder.EntitySet<WeatherForecast>("WeatherForecasts");
+            odataBuilder.EntitySet<WeatherForecast>("WeatherForecasts")
+                .EntityType
+                .Filter()
+                .Count()
+                .Expand()
+                .OrderBy()
+                .Page()
+                .Select();
             return odataBuilder.GetEdmModel();
         }
     }

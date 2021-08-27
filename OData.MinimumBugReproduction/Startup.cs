@@ -58,7 +58,6 @@ namespace OData.MinimumBugReproduction
                 .OrderBy()
                 .Page()
                 .Select();
-            odataBuilder.ComplexType<WeatherForecastDto>();
             return odataBuilder.GetEdmModel();
         }
     }
